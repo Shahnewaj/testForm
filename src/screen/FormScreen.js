@@ -14,6 +14,8 @@ import CheckBox from '@react-native-community/checkbox';
 
 import {Formik} from 'formik';
 import * as yup from 'yup';
+import CustomButton from '../components/CustomButton';
+import CustomInput from '../components/CustomInput';
 
 const validateSchema = yup.object({
   firstName: yup.string().required().min(4, 'must be 4 character '),
@@ -29,11 +31,28 @@ const FormScreen = (props) => {
   const [formData, setFormData] = useState([]);
 
   // checked
-  const [checked, setChecked] = useState({
+  const [gender, setGender] = useState({
     male: false,
     female: false,
     choice: '',
   });
+
+  const malePressed = (choice) => {
+    setGender({
+      male: true,
+      female: false,
+      choice: choice,
+    });
+    console.log(gender);
+  };
+  const femalePressed = (choice) => {
+    setGender({
+      male: false,
+      female: true,
+      choice: choice,
+    });
+    console.log(gender);
+  };
 
   const deselectCountry = () => {
     setCountry(null);
@@ -43,33 +62,17 @@ const FormScreen = (props) => {
     console.log(country.name);
   };
 
-  const malePressed = (choice) => {
-    setChecked({
-      male: true,
-      female: false,
-      choice: choice,
-    });
-    console.log(checked);
-  };
-  const femalePressed = (choice) => {
-    setChecked({
-      male: false,
-      female: true,
-      choice: choice,
-    });
-    console.log(checked);
-  };
-
   const addDetails = (values) => {
     setFormData((currentData) => {
-      if (country) {
+      if ((country && gender.male == true) || gender.female == true) {
         let newValue = {
           ...values,
           country: country,
+          gender,
         };
         return [newValue, ...currentData];
       } else {
-        alert('contry needed');
+        alert(' select country & Gender also');
       }
     });
   };
@@ -93,63 +96,44 @@ const FormScreen = (props) => {
           }}>
           {(formProps) => (
             <View>
-              <View style={styles.inputView}>
-                <Text style={styles.inputTitle}> First Name</Text>
-                <TextInput
-                  placeholder="Enter First Name "
-                  style={styles.inputField}
-                  onChangeText={formProps.handleChange('firstName')}
-                  autoCapitalize={'none'}
-                  autoCorrect={false}
-                  value={formProps.values.firstName}
-                  onBlur={formProps.handleBlur('firstName')}
-                />
-                <Text>
-                  {formProps.touched.firstName && formProps.errors.firstName}
-                </Text>
-              </View>
-              <View style={styles.inputView}>
-                <Text style={styles.inputTitle}> Last Name</Text>
-                <TextInput
-                  placeholder="Enter Last Name "
-                  style={styles.inputField}
-                  onChangeText={formProps.handleChange('lastName')}
-                  autoCapitalize={'none'}
-                  autoCorrect={false}
-                  value={formProps.values.lastName}
-                  onBlur={formProps.handleBlur('lastName')}
-                />
-                <Text>
-                  {formProps.touched.lastName && formProps.errors.lastName}
-                </Text>
-              </View>
-              <View style={styles.inputView}>
-                <Text style={styles.inputTitle}> Email</Text>
-                <TextInput
-                  placeholder="Enter your email address "
-                  style={styles.inputField}
-                  onChangeText={formProps.handleChange('email')}
-                  autoCapitalize={'none'}
-                  autoCorrect={false}
-                  value={formProps.values.email}
-                  onBlur={formProps.handleBlur('email')}
-                />
-                <Text>{formProps.touched.email && formProps.errors.email}</Text>
-              </View>
-              <View style={styles.inputView}>
-                <Text style={styles.inputTitle}> Phone</Text>
-                <TextInput
-                  placeholder="Enter your phone number"
-                  style={styles.inputField}
-                  onChangeText={formProps.handleChange('phone')}
-                  autoCapitalize={'none'}
-                  autoCorrect={false}
-                  value={formProps.values.phone}
-                  keyboardType="numeric"
-                  onBlur={formProps.handleBlur('phone')}
-                />
-                <Text>{formProps.touched.phone && formProps.errors.phone}</Text>
-              </View>
+              <CustomInput
+                label="First Name"
+                placeholder="Enter First Name "
+                onChangeText={formProps.handleChange('firstName')}
+                value={formProps.values.firstName}
+                onBlur={formProps.handleBlur('firstName')}
+                error={
+                  formProps.touched.firstName && formProps.errors.firstName
+                }
+              />
+              <CustomInput
+                label=" Last Name"
+                placeholder="Enter Last Name"
+                onChangeText={formProps.handleChange('firstName')}
+                onChangeText={formProps.handleChange('lastName')}
+                value={formProps.values.lastName}
+                onBlur={formProps.handleBlur('lastName')}
+                error={formProps.touched.lastName && formProps.errors.lastName}
+              />
+              <CustomInput
+                label=" Email"
+                placeholder="Enter Email "
+                onChangeText={formProps.handleChange('email')}
+                onChangeText={formProps.handleChange('email')}
+                value={formProps.values.email}
+                onBlur={formProps.handleBlur('email')}
+                error={formProps.touched.email && formProps.errors.email}
+              />
+              <CustomInput
+                label="Phone"
+                placeholder="Enter Phone "
+                onChangeText={formProps.handleChange('phone')}
+                onChangeText={formProps.handleChange('phone')}
+                value={formProps.values.email}
+                onBlur={formProps.handleBlur('phone')}
+                error={formProps.touched.phone && formProps.errors.phone}
+              />
+
               <View style={styles.countrySelectView}>
                 <Text style={styles.fieldTitle}>Your Country</Text>
 
@@ -174,7 +158,7 @@ const FormScreen = (props) => {
                 <View style={styles.gender}>
                   <CheckBox
                     style={styles.checkBox}
-                    value={checked.male}
+                    value={gender.male}
                     onValueChange={malePressed}
                   />
                   <Text>Male</Text>
@@ -182,18 +166,13 @@ const FormScreen = (props) => {
                 <View style={styles.gender}>
                   <CheckBox
                     style={styles.checkBox}
-                    value={checked.female}
+                    value={gender.female}
                     onValueChange={femalePressed}
                   />
                   <Text>Female</Text>
                 </View>
               </View>
-
-              <TouchableOpacity onPress={formProps.handleSubmit}>
-                <View style={styles.submitView}>
-                  <Text>Submit</Text>
-                </View>
-              </TouchableOpacity>
+              <CustomButton onPress={formProps.handleSubmit} title="Submit" />
             </View>
           )}
         </Formik>
@@ -202,27 +181,6 @@ const FormScreen = (props) => {
   );
 };
 const styles = StyleSheet.create({
-  inputView: {
-    padding: 10,
-  },
-  inputTitle: {
-    color: '#666',
-    marginVertical: 10,
-    fontSize: 16,
-  },
-  inputField: {
-    borderBottomColor: '#A6A6A6',
-    borderBottomWidth: 1,
-    fontSize: 14,
-    color: '#333',
-    padding: 5,
-  },
-  submitView: {
-    margin: 20,
-    backgroundColor: '#ddd',
-    alignItems: 'center',
-    padding: 20,
-  },
   countrySelectView: {
     padding: 10,
     borderBottomColor: '#ddd',
